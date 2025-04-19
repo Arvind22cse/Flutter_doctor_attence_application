@@ -1,0 +1,12 @@
+
+npm install
+npm i express
+npm i nodemon
+npm i mongoose
+npm i dotenv
+npm i cors
+npm install body-parser
+npm install express-session
+npm install node-cron dotenv mongoose axios
+
+
