@@ -3,6 +3,7 @@ const path = require('path');
 const multer = require('multer');
 const express = require('express');
 const router = express.Router();
+const ImageModel = require('../model/image.model.js'); // ✅ import the model
 
 const uploadDir = path.join(__dirname, '../uploads');
 
@@ -23,17 +24,29 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Upload endpoint
-router.post('/upload-image', upload.single('image'), (req, res) => {
+// ✅ Upload endpoint with MongoDB saving
+router.post('/upload-image', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
 
-  return res.status(200).json({
-    message: 'Image uploaded successfully',
-    filename: req.file.filename,
-    filePath: `/uploads/${req.file.filename}`,
-  });
+  const imagePath = `/uploads/${req.file.filename}`;
+
+  try {
+    // ✅ Save to MongoDB
+    const newImage = new ImageModel({ imagePath });
+    await newImage.save();
+
+    return res.status(200).json({
+      message: 'Image uploaded and saved successfully',
+      filename: req.file.filename,
+      filePath: imagePath,
+      mongoId: newImage._id,
+    });
+  } catch (error) {
+    console.error('Error saving to DB:', error);
+    return res.status(500).json({ error: 'Failed to save image to database' });
+  }
 });
 
 module.exports = router;

@@ -43,9 +43,12 @@ dependencies:
   camera: ^0.11.1
   image_picker: ^1.1.2
   path_provider: ^2.1.1
-  shared_preferences: ^2.2.1
+  shared_preferences: ^2.5.3
   http: ^0.13.6
   permission_handler: ^12.0.0+1
+  geolocator: ^14.0.0
+  google_maps_flutter: ^2.1.1
+  geocoding: ^3.0.0
 
 
 dev_dependencies:

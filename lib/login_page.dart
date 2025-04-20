@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DoctorLoginPage extends StatefulWidget {
   const DoctorLoginPage({super.key});
@@ -12,28 +13,49 @@ class DoctorLoginPage extends StatefulWidget {
 class _DoctorLoginPageState extends State<DoctorLoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  bool isLoading = false;
+  String? error;
 
   Future<void> loginDoctor() async {
-    final url = Uri.parse("http://192.168.38.142:3000/api/doctor-login");
-    final response = await http.post(
-      url,
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "email": emailController.text.trim(),
-        "password": passwordController.text.trim(),
-      }),
-    );
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
 
-    final data = jsonDecode(response.body);
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Welcome Dr. ${data['doctorName']}")),
+    final url = Uri.parse("http://192.168.38.142:3000/api/doctor-login");
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "email": emailController.text.trim(),
+          "password": passwordController.text.trim(),
+        }),
       );
-      Navigator.pushNamed(context, '/home');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(data['message'] ?? 'Login failed')),
-      );
+
+      final data = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // Save doctorId in SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('doctorId', data['doctorId']);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Welcome Dr. ${data['doctorName']}")),
+        );
+        Navigator.pushNamed(context, '/home'); // Navigate to home page
+      } else {
+        setState(() {
+          error = data['message'] ?? 'Login failed';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = "Error occurred: $e";
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -68,10 +90,27 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+                if (error != null) ...[
+                  const SizedBox(height: 10),
+                  Text(error!, style: const TextStyle(color: Colors.red)),
+                ],
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: loginDoctor,
-                  child: const Text("Login"),
+                  onPressed: isLoading ? null : loginDoctor,
+                  child:
+                      isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text("Login"),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 40,
+                      vertical: 14,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pushNamed(context, '/signup'),

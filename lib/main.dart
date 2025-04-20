@@ -1,9 +1,11 @@
-import 'package:flutter/material.dart';
+// main.dart
 
+import 'package:flutter/material.dart';
 import 'login_page.dart';
 import 'signup_page.dart';
 import 'homepage.dart';
 import 'camera.dart';
+import 'location.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,14 +19,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: const DoctorLoginPage(), // Start with the Login Page
+      initialRoute: '/login',
       routes: {
         '/login': (context) => const DoctorLoginPage(),
         '/signup': (context) => const DoctorSignupPage(),
         '/home': (context) => const Home(),
-        '/camera':
-            (context) =>
-                const CameraScreen(doctorId: '6802586c36b8f3684d8fec18'),
+        '/location': (context) => const LocationTracker(),
       },
     );
   }

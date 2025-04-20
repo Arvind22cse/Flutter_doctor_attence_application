@@ -22,12 +22,16 @@ class _HomeState extends State<Home> {
     Navigator.pushNamed(context, '/doctor-attendance');
   }
 
-  void _getLocation() {
-    ScaffoldMessenger.of(
+  // Method to navigate to the location page and pass doctorId
+  void _getLocation(String doctorId) {
+    Navigator.pushNamed(
       context,
-    ).showSnackBar(const SnackBar(content: Text("Fetching location...")));
+      '/location',
+      arguments: doctorId, // 👈 pass doctorId here
+    );
   }
 
+  // Method to mark attendance (you may implement the camera functionality here)
   void _markAttendance() {
     Navigator.pushNamed(context, '/camera');
   }
@@ -40,6 +44,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
+    // Extract the doctorId from the route arguments passed from the login screen
+    final Map<String, dynamic> data =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+        {};
+    final String doctorId =
+        data['doctorId'] ?? ''; // Safe fallback to empty string
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
       appBar: AppBar(
@@ -138,7 +149,7 @@ class _HomeState extends State<Home> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 30),
+                        const SizedBox(height: 10),
                         ElevatedButton.icon(
                           onPressed: _goBackFromScanner,
                           icon: const Icon(Icons.arrow_back),
@@ -158,7 +169,8 @@ class _HomeState extends State<Home> {
                       ],
                     )
                     : Text(
-                      "Welcome Doc",
+                      "Good Morning arvind!!!\n\n\n"
+                      "Mark your presence",
                       style: Theme.of(
                         context,
                       ).textTheme.headlineMedium?.copyWith(
@@ -173,7 +185,7 @@ class _HomeState extends State<Home> {
               bottom: 30,
               left: 20,
               child: ElevatedButton.icon(
-                onPressed: _getLocation,
+                onPressed: () => _getLocation(doctorId), // Pass doctorId here
                 icon: const Icon(Icons.location_on),
                 label: const Text("Location"),
                 style: ElevatedButton.styleFrom(
