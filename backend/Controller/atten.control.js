@@ -2,14 +2,12 @@
 
 const mongoose = require("mongoose");
 const Attendance = require("../model/atten.model"); // Your attendance model
- // adjust the path
-// const locationModel = require("../models/location.model"); // not needed if hardcoded
 
 const postAttendance = async (req, res) => {
   try {
     const { doctorId, address } = req.body;
 
-    // Step 1: Validate inputs
+    // Validate inputs
     if (!doctorId) {
       return res.status(401).json({ message: "Unauthorized. Please log in." });
     }
@@ -18,7 +16,6 @@ const postAttendance = async (req, res) => {
       return res.status(400).json({ message: "Invalid or missing location address." });
     }
 
-    // Step 2: Hardcoded valid address check
     const validAddress = "Your current location:\nPonnar and Sankar Hostel, Perundurai, Erode, Tamil Nadu, 638052, India";
 
     if (address.trim() !== validAddress.trim()) {
@@ -26,27 +23,22 @@ const postAttendance = async (req, res) => {
     }
 
     const date = new Date().toISOString().split("T")[0];
-    const check_in = new Date(); // ✅ Correct: returns a Date object with current date and time
+    const check_in = new Date();
 
-
-    // Step 3: Prevent duplicate check-in
     const existingAttendance = await Attendance.findOne({ doctorId, date });
     if (existingAttendance) {
       return res.status(400).json({ message: "Already checked in today" });
     }
 
-    // Step 4: Save attendance
     const newAttendance = new Attendance({
       doctorId,
       address,
       date,
       check_in,
-      timestamp: new Date(),
     });
 
     await newAttendance.save();
 
-    console.log("✅ Attendance marked for doctor:", doctorId);
     res.status(200).json({
       message: "Check-in successful",
       attendance: newAttendance,
@@ -56,6 +48,38 @@ const postAttendance = async (req, res) => {
     res.status(500).json({ message: "Error marking attendance" });
   }
 };
+
+const postCheckOut = async (req, res) => {
+  try {
+    const { doctorId } = req.body;
+    const date = new Date().toISOString().split("T")[0];
+    const check_out = new Date();
+
+    const existingAttendance = await Attendance.findOne({ doctorId, date });
+
+    if (!existingAttendance) {
+      return res.status(400).json({ message: "Please check-in first before checking out." });
+    }
+
+    if (existingAttendance.check_out) {
+      return res.status(400).json({ message: "You have already checked out today." });
+    }
+
+    existingAttendance.check_out = check_out;
+    existingAttendance.isCompleted = true; // Mark attendance as completed
+
+    await existingAttendance.save();
+
+    res.status(200).json({
+      message: "Check-out successful",
+      attendance: existingAttendance,
+    });
+  } catch (err) {
+    console.error("❌ Error in postCheckOut:", err);
+    res.status(500).json({ message: "Error marking check-out" });
+  }
+};
+
 
 const getatten = async(req,res) => {
     try{
@@ -68,4 +92,4 @@ const getatten = async(req,res) => {
     }
 }
 
-module.exports = { postAttendance ,getatten };
+module.exports = { postAttendance ,getatten ,postCheckOut};

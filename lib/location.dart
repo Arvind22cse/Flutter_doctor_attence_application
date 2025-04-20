@@ -196,6 +196,54 @@ class _LocationTrackerState extends State<LocationTracker> {
     }
   }
 
+  Future<void> markCheckOut() async {
+    if (doctorId == null) {
+      setState(() {
+        error = "Doctor ID not found. Please login again.";
+      });
+      return;
+    }
+
+    if (locationText.startsWith("Your current location:")) {
+      setState(() {
+        isSending = true;
+        error = null;
+      });
+
+      try {
+        final response = await http.post(
+          Uri.parse(
+            'http://192.168.38.142:3000/api/checkout',
+          ), // Add your check-out API URL here
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'doctorId': doctorId, 'address': locationText}),
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text("Check-out successful!")));
+        } else {
+          setState(() {
+            error = "Failed to mark check-out.";
+          });
+        }
+      } catch (e) {
+        setState(() {
+          error = "Error marking check-out: $e";
+        });
+      } finally {
+        setState(() {
+          isSending = false;
+        });
+      }
+    } else {
+      setState(() {
+        error = "No valid location address to mark check-out.";
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -316,6 +364,34 @@ class _LocationTrackerState extends State<LocationTracker> {
                             : Text("Mark Attendance"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: isSending ? null : markCheckOut,
+                    child:
+                        isSending
+                            ? Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                                SizedBox(width: 10),
+                                Text("Marking Check-Out..."),
+                              ],
+                            )
+                            : Text("Mark Check-Out"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
                       padding: EdgeInsets.symmetric(
                         horizontal: 24,
                         vertical: 12,

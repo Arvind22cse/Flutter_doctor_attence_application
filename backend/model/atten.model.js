@@ -17,9 +17,17 @@ const attendanceSchema = new mongoose.Schema({
     type: Date, // ✅ actual timestamp for check-in
     required: true,
   },
+  check_out: {
+    type: Date, // Actual timestamp for check-out
+    required: false, // Optional field, can be added later
+  },
   timestamp: {
     type: Date,
     default: Date.now,
+  },
+  isCompleted: {
+    type: Boolean,
+    default: false, // Whether the attendance process is completed (check-in and check-out done)
   },
 });
 
