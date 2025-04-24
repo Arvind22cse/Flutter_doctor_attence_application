@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'doctorattendenceview.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -9,6 +11,20 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool _isScannerVisible = false;
+  String doctorId = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _getDoctorId();
+  }
+
+  Future<void> _getDoctorId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      doctorId = prefs.getString('doctorId') ?? '';
+    });
+  }
 
   void _logout() {
     Navigator.pushReplacementNamed(context, '/login');
@@ -18,12 +34,17 @@ class _HomeState extends State<Home> {
     Navigator.pushNamed(context, '/profile');
   }
 
-  void _openDoctorAttendance() {
-    Navigator.pushNamed(context, '/doctor-attendance');
+  void _openDoctorAttendance(String doctorId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => DoctorAttendanceScreen(doctorId: doctorId),
+      ),
+    );
   }
 
   // Method to navigate to the location page and pass doctorId
-  void _getLocation(String doctorId) {
+  void _getLocation() {
     Navigator.pushNamed(
       context,
       '/location',
@@ -31,7 +52,7 @@ class _HomeState extends State<Home> {
     );
   }
 
-  // Method to mark attendance (you may implement the camera functionality here)
+  // Method to mark attendance
   void _markAttendance() {
     Navigator.pushNamed(context, '/camera');
   }
@@ -44,13 +65,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    // Extract the doctorId from the route arguments passed from the login screen
-    final Map<String, dynamic> data =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
-        {};
-    final String doctorId =
-        data['doctorId'] ?? ''; // Safe fallback to empty string
-
     return Scaffold(
       backgroundColor: const Color(0xFFF4F4F4),
       appBar: AppBar(
@@ -68,7 +82,7 @@ class _HomeState extends State<Home> {
                 } else if (value == 'profile') {
                   _openProfile();
                 } else if (value == 'attendance') {
-                  _openDoctorAttendance();
+                  _openDoctorAttendance(doctorId); // Pass doctorId here
                 }
               },
               icon: const CircleAvatar(
@@ -169,7 +183,7 @@ class _HomeState extends State<Home> {
                       ],
                     )
                     : Text(
-                      "Good Morning arvind!!!\n\n\n"
+                      "Good Morning Arvind!!!\n\n\n"
                       "Mark your presence",
                       style: Theme.of(
                         context,
@@ -185,7 +199,7 @@ class _HomeState extends State<Home> {
               bottom: 30,
               left: 20,
               child: ElevatedButton.icon(
-                onPressed: () => _getLocation(doctorId), // Pass doctorId here
+                onPressed: _getLocation, // Pass doctorId here
                 icon: const Icon(Icons.location_on),
                 label: const Text("Location"),
                 style: ElevatedButton.styleFrom(

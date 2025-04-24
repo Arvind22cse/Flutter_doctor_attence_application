@@ -16,33 +16,8 @@ class _DoctorSignupPageState extends State<DoctorSignupPage> {
   final passwordController = TextEditingController();
   final specializationController = TextEditingController();
 
-  List<dynamic> phcList = [];
-  String? selectedPhcId; // Holds selected PHC _id
-
-  @override
-  void initState() {
-    super.initState();
-    fetchPHCs(); // Fetch list of PHCs on load
-  }
-
-  Future<void> fetchPHCs() async {
-    final url = Uri.parse("http://192.168.38.142:3000/api/list-phc");
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      setState(() {
-        phcList = data;
-      });
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Failed to load PHCs")));
-    }
-  }
-
   Future<void> registerDoctor() async {
-    final url = Uri.parse("http://192.168.38.142:3000/api/add-doctor");
+    final url = Uri.parse("http://192.168.152.109:3002/api/add-doctor");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},
@@ -52,7 +27,6 @@ class _DoctorSignupPageState extends State<DoctorSignupPage> {
         "password": passwordController.text.trim(),
         "phone": phoneController.text.trim(),
         "specialization": specializationController.text.trim(),
-        "phc": selectedPhcId, // Send selected PHC _id
       }),
     );
 
@@ -119,28 +93,28 @@ class _DoctorSignupPageState extends State<DoctorSignupPage> {
                     border: OutlineInputBorder(),
                   ),
                 ),
-                const SizedBox(height: 10),
+                // const SizedBox(height: 10),
 
                 /// 🔽 Dropdown to Select PHC
-                DropdownButtonFormField<String>(
-                  value: selectedPhcId,
-                  decoration: const InputDecoration(
-                    labelText: "Select PHC",
-                    border: OutlineInputBorder(),
-                  ),
-                  items:
-                      phcList.map<DropdownMenuItem<String>>((phc) {
-                        return DropdownMenuItem<String>(
-                          value: phc["_id"],
-                          child: Text(phc["name"]),
-                        );
-                      }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedPhcId = value;
-                    });
-                  },
-                ),
+                // DropdownButtonFormField<String>(
+                //   value: selectedPhcId,
+                //   decoration: const InputDecoration(
+                //     labelText: "Select PHC",
+                //     border: OutlineInputBorder(),
+                //   ),
+                //   items:
+                //       phcList.map<DropdownMenuItem<String>>((phc) {
+                //         return DropdownMenuItem<String>(
+                //           value: phc["_id"],
+                //           child: Text(phc["name"]),
+                //         );
+                //       }).toList(),
+                //   onChanged: (value) {
+                //     setState(() {
+                //       selectedPhcId = value;
+                //     });
+                //   },
+                // ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: passwordController,

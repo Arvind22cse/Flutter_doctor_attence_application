@@ -120,7 +120,7 @@ class _LocationTrackerState extends State<LocationTracker> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.38.142:3000/api/location'),
+          Uri.parse('http://192.168.152.109:3002/api/location'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'doctorId': doctorId, 'address': locationText}),
         );
@@ -166,7 +166,7 @@ class _LocationTrackerState extends State<LocationTracker> {
 
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.38.142:3000/api/attendance'),
+          Uri.parse('http://192.168.152.109:3002/api/attendance'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'doctorId': doctorId, 'address': locationText}),
         );
@@ -213,7 +213,7 @@ class _LocationTrackerState extends State<LocationTracker> {
       try {
         final response = await http.post(
           Uri.parse(
-            'http://192.168.38.142:3000/api/checkout',
+            'http://192.168.152.109:3002/api/checkout',
           ), // Add your check-out API URL here
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({'doctorId': doctorId, 'address': locationText}),

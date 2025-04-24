@@ -21,7 +21,7 @@ router.get("/attendance/:doctorId", getAttendance);
 router.get("/doctor-logout", doctorLogout);
 router.post("/attendance", postAttendance);
 router.post("/checkout", postCheckOut);
-router.get("/getatten", getatten);
+router.get("/getatten/:doctorId", getatten);
 router.post('/admin/add-phc',addphc);
 router.delete('/admin/dphc/:id',deletephc);
 router.put('/admin/uphc/:id',updatePhc);

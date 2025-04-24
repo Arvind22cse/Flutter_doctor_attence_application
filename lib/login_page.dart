@@ -16,13 +16,31 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
   bool isLoading = false;
   String? error;
 
+  // Dispose controllers to avoid memory leaks
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> loginDoctor() async {
     setState(() {
       isLoading = true;
       error = null;
     });
 
-    final url = Uri.parse("http://192.168.38.142:3000/api/doctor-login");
+    // Basic validation
+    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+      setState(() {
+        isLoading = false;
+        error = "Please enter both email and password";
+      });
+      return;
+    }
+
+    final url = Uri.parse("http://192.168.152.109:3002/api/doctor-login");
+
     try {
       final response = await http.post(
         url,
@@ -34,15 +52,19 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
       );
 
       final data = jsonDecode(response.body);
+
       if (response.statusCode == 200) {
         // Save doctorId in SharedPreferences
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('doctorId', data['doctorId']);
 
+        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Welcome Dr. ${data['doctorName']}")),
         );
-        Navigator.pushNamed(context, '/home'); // Navigate to home page
+
+        // Navigate to homepage
+        Navigator.pushNamed(context, '/home');
       } else {
         setState(() {
           error = data['message'] ?? 'Login failed';
@@ -97,10 +119,6 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: isLoading ? null : loginDoctor,
-                  child:
-                      isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text("Login"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: const EdgeInsets.symmetric(
@@ -111,6 +129,10 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
+                  child:
+                      isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text("Login"),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pushNamed(context, '/signup'),
