@@ -54,7 +54,7 @@ class _HomeState extends State<Home> {
 
   // Method to mark attendance
   void _markAttendance() {
-    Navigator.pushNamed(context, '/camera');
+    Navigator.pushNamed(context, '/finger');
   }
 
   void _goBackFromScanner() {
@@ -194,33 +194,11 @@ class _HomeState extends State<Home> {
                       textAlign: TextAlign.center,
                     ),
           ),
+
           if (!_isScannerVisible)
             Positioned(
               bottom: 30,
-              left: 20,
-              child: ElevatedButton.icon(
-                onPressed: _getLocation, // Pass doctorId here
-                icon: const Icon(Icons.location_on),
-                label: const Text("Location"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.deepPurple,
-                  elevation: 5,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                    side: const BorderSide(color: Colors.deepPurple),
-                  ),
-                ),
-              ),
-            ),
-          if (!_isScannerVisible)
-            Positioned(
-              bottom: 30,
-              right: 20,
+              right: 90,
               child: ElevatedButton.icon(
                 onPressed: _markAttendance,
                 icon: const Icon(Icons.check_circle_outline),

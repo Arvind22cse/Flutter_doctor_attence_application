@@ -7,6 +7,7 @@ import 'homepage.dart';
 import 'camera.dart';
 import 'location.dart';
 import 'doctorattendenceview.dart';
+import 'Figer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -25,7 +26,9 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const DoctorLoginPage(),
         '/signup': (context) => const DoctorSignupPage(),
         '/home': (context) => const Home(),
+        '/finger': (context) => FingerprintAuthPage(),
         '/location': (context) => const LocationTracker(),
+
         '/attendence': (context) {
           final Map<String, dynamic> data =
               ModalRoute.of(context)?.settings.arguments

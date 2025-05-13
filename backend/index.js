@@ -9,6 +9,7 @@ const multer = require('multer');
 const Attendance = require("./model/attendance.model.js");
 const Doctor = require("./model/doctor.model.js");
 const uploadRoutes = require('./routes/upload.js');
+// const faceDetectRoutes = require('./routes/facereg.js');
 
 
 
@@ -35,6 +36,7 @@ app.use(
 
 app.use("/api", router);
 app.use("/uploads", uploadRoutes);
+// app.use('/face', faceDetectRoutes);  
 
 mongoose
   .connect("mongodb+srv://arvindm22cse:31-Aug-04@hospital.jyifl.mongodb.net/?retryWrites=true&w=majority&appName=Hospital")

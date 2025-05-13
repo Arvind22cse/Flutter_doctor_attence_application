@@ -39,7 +39,7 @@ class _DoctorLoginPageState extends State<DoctorLoginPage> {
       return;
     }
 
-    final url = Uri.parse("http://192.168.152.109:3002/api/doctor-login");
+    final url = Uri.parse("http://192.168.178.19:3002/api/doctor-login");
 
     try {
       final response = await http.post(

@@ -17,7 +17,7 @@ class _DoctorSignupPageState extends State<DoctorSignupPage> {
   final specializationController = TextEditingController();
 
   Future<void> registerDoctor() async {
-    final url = Uri.parse("http://192.168.152.109:3002/api/add-doctor");
+    final url = Uri.parse("http://192.168.178.19:3002/api/add-doctor");
     final response = await http.post(
       url,
       headers: {"Content-Type": "application/json"},

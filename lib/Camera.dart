@@ -1,119 +1,114 @@
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
+// import 'dart:io';
+// import 'dart:ui' as ui;
+// import 'package:flutter/material.dart';
+// import 'package:image_picker/image_picker.dart';
+// import 'package:http/http.dart' as http;
+// import 'dart:convert';
 
-class CameraScreen extends StatefulWidget {
-  final String doctorId;
+// void main() => runApp(MyApp());
 
-  const CameraScreen({super.key, required this.doctorId});
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(title: 'Face Detection', home: FacePage());
+//   }
+// }
 
-  @override
-  State<CameraScreen> createState() => _CameraScreenState();
-}
+// class FacePage extends StatefulWidget {
+//   @override
+//   _FacePageState createState() => _FacePageState();
+// }
 
-class _CameraScreenState extends State<CameraScreen> {
-  late CameraController _controller;
-  late List<CameraDescription> cameras;
-  bool isCameraReady = false;
+// class _FacePageState extends State<FacePage> {
+//   File? _imageFile;
+//   List<dynamic> _faces = [];
+//   ui.Image? _image;
+//   bool isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    initializeCamera();
-  }
+//   Future<void> _getImageAndDetectFaces() async {
+//     final picker = ImagePicker();
+//     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+//     if (pickedFile == null) return;
 
-  Future<void> initializeCamera() async {
-    await Permission.camera.request();
-    if (await Permission.camera.isGranted) {
-      try {
-        cameras = await availableCameras();
-        if (cameras.isEmpty) {
-          // Handle the case where no cameras are available
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('No camera found on this device')),
-          );
-          return;
-        }
+//     final file = File(pickedFile.path);
+//     setState(() => isLoading = true);
 
-        _controller = CameraController(cameras[0], ResolutionPreset.medium);
-        await _controller.initialize();
+//     final request = http.MultipartRequest(
+//       'POST',
+//       Uri.parse('http://YOUR_SERVER_IP:3000/detect'),
+//     );
+//     request.files.add(await http.MultipartFile.fromPath('image', file.path));
+//     final response = await request.send();
 
-        if (!mounted) return;
-        setState(() {
-          isCameraReady = true;
-        });
-      } catch (e) {
-        print("Error initializing camera: $e");
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error initializing camera')));
-      }
-    } else {
-      // Handle permission denied case
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Camera permission is required')));
-    }
-  }
+//     if (response.statusCode == 200) {
+//       final responseBody = await response.stream.bytesToString();
+//       final faces = jsonDecode(responseBody);
+//       final data = await file.readAsBytes();
+//       final image = await decodeImageFromList(data);
+//       setState(() {
+//         _imageFile = file;
+//         _faces = faces;
+//         _image = image;
+//         isLoading = false;
+//       });
+//     } else {
+//       setState(() => isLoading = false);
+//       print('Error: ${response.statusCode}');
+//     }
+//   }
 
-  Future<void> takePictureAndUpload() async {
-    final XFile image = await _controller.takePicture();
-    File imageFile = File(image.path);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body:
+//           isLoading
+//               ? Center(child: CircularProgressIndicator())
+//               : (_imageFile == null)
+//               ? Center(child: Text('No image selected'))
+//               : Center(
+//                 child: FittedBox(
+//                   child: SizedBox(
+//                     width: _image!.width.toDouble(),
+//                     height: _image!.height.toDouble(),
+//                     child: CustomPaint(painter: FacePainter(_image!, _faces)),
+//                   ),
+//                 ),
+//               ),
+//       floatingActionButton: FloatingActionButton(
+//         onPressed: _getImageAndDetectFaces,
+//         child: Icon(Icons.add_a_photo),
+//       ),
+//     );
+//   }
+// }
 
-    // Upload to backend
-    var uri = Uri.parse('http://localhost:3000/uploads/upload-image');
-    var request =
-        http.MultipartRequest('POST', uri)
-          ..fields['doctorId'] = widget.doctorId
-          ..files.add(
-            await http.MultipartFile.fromPath('image', imageFile.path),
-          );
+// class FacePainter extends CustomPainter {
+//   final ui.Image image;
+//   final List<dynamic> faces;
 
-    var response = await request.send();
+//   FacePainter(this.image, this.faces);
 
-    if (response.statusCode == 200) {
-      print("Image uploaded successfully");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Attendance marked!')));
-    } else {
-      print("Image upload failed");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Upload failed. Try again!')));
-    }
-  }
+//   @override
+//   void paint(ui.Canvas canvas, ui.Size size) {
+//     final paint =
+//         Paint()
+//           ..style = PaintingStyle.stroke
+//           ..strokeWidth = 3.0
+//           ..color = Colors.red;
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+//     canvas.drawImage(image, Offset.zero, Paint());
 
-  @override
-  Widget build(BuildContext context) {
-    if (!isCameraReady) {
-      return Center(child: CircularProgressIndicator());
-    }
+//     for (var face in faces) {
+//       final rect = Rect.fromLTWH(
+//         face['x'].toDouble(),
+//         face['y'].toDouble(),
+//         face['width'].toDouble(),
+//         face['height'].toDouble(),
+//       );
+//       canvas.drawRect(rect, paint);
+//     }
+//   }
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Mark Attendance')),
-      body: Column(
-        children: [
-          AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: CameraPreview(_controller),
-          ),
-          ElevatedButton(
-            onPressed:
-                () => takePictureAndUpload(), // No need to pass context here
-            child: Text("Capture & Mark Attendance"),
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   bool shouldRepaint(CustomPainter oldDelegate) => true;
+// }

@@ -13,7 +13,7 @@ class DoctorAttendanceScreen extends StatefulWidget {
 
 class _DoctorAttendanceScreenState extends State<DoctorAttendanceScreen> {
   Future<List<Map<String, dynamic>>> fetchAttendanceData() async {
-    final url = 'http://192.168.152.109:3002/api/getatten/${widget.doctorId}';
+    final url = 'http://192.168.178.19:3002/api/getatten/${widget.doctorId}';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
